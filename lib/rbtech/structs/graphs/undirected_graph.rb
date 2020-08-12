@@ -26,12 +26,7 @@ class Rbtech::UndirectedGraph < Rbtech::Graph
     end
 
     def get_connections(n)
-        fromi = to_index(n)
-        data = {}
-        @strat.get_connections_from(fromi).each do |nodei_weight_tuple|
-            data[@nodes[nodei_weight_tuple[0]]] = nodei_weight_tuple[1]
-        end
-        data
+        @strat.get_connections_from(fromi)
     end
 
     def connection_exist?(from: , to: )

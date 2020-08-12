@@ -1,16 +1,18 @@
 class Rbtech::AdjacencyMatrixStrategy
 
-    def initialize(node_count=0)
+    def initialize(nodes = [])
         # adj list is a multi-dimensional array.
         # each element of the outside arary is an array
         # of [connected_node, distance] tuples
+        @nodes = nodes
         @adj_mat = Array.new(node_count) do |i|
             Array.new(node_count){|j| Float::INFINITY } # TODO: i == j ? 0 : Float::INFINITY ???
         end
     end
 
     # O(n^2) due to memory re-allocation under the hood
-    def add_node
+    def add_node(data)
+        @nodes << data
         for i in 0...node_count
             @adj_mat[i] << Float::INFINITY
         end
@@ -19,6 +21,7 @@ class Rbtech::AdjacencyMatrixStrategy
 
     # O(edge_count)
     def remove_node(node_index)
+        @nodes[node_index] = nil
         remove_connections_from(node_index)
         remove_connections_to(node_index)
     end
@@ -46,8 +49,8 @@ class Rbtech::AdjacencyMatrixStrategy
     end
 
     # O(1)
-    def add_connection(from_index: , to_index:, weight: 1)
-        @adj_mat[from_index][to_index] = weight
+    def add_connection(from: , to:, weight: 1)
+        @adj_mat[from][to] = weight
     end
 
     # O(1)
@@ -70,14 +73,14 @@ class Rbtech::AdjacencyMatrixStrategy
     end
 
     # O(1)
-    def connection_exist?(from_index:, to_index:)
-        connection_weight(from_index: from_index, to_index: to_index) < Float::INFINITY 
+    def connection_exist?(from:, to:)
+        connection_weight(from: from, to: to) < Float::INFINITY 
     end
 
     # O(1)
     # Return infiinity if no connection exists
-    def connection_weight(from_index: , to_index: )
-        @adj_mat[from_index][to_index]
+    def connection_weight(from: , to: )
+        @adj_mat[from][to]
     end
 
     private
