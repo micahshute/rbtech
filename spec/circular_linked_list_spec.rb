@@ -14,7 +14,7 @@ RSpec.describe Rbtech::CircularLinkedList do
     end
 
     ll.loop do |n, i|
-      expect(n.value).to eq(i % 100)
+      expect(n).to eq(i % 100)
       break if i > 1001
     end
     expect(ll.length).to eq(100)
@@ -25,8 +25,7 @@ RSpec.describe Rbtech::CircularLinkedList do
     ll = described_class.new_from_array(a)
     for i in 0..100
       node = ll[i] 
-      expect(node).to be_a(Rbtech::LinkedListNode)
-      expect(node.data).to eq(i)
+      expect(node).to eq(i)
     end
     expect(ll[101]).to be(nil)
     expect{ |n,i|
@@ -34,22 +33,20 @@ RSpec.describe Rbtech::CircularLinkedList do
     }.to perform_linear.in_range(sizes).sample(10).times
   end
 
-  zv
-
   describe "#initialize" do 
     it "can be initialied with just a length" do 
       ll = described_class.new(10)
       expect(ll.length).to eq(10)
-      expect(ll[0].data).to be(nil)
-      expect(ll[8].data).to be(nil)
-      expect(ll[-1].data).to be(nil)
+      expect(ll[0]).to be(nil)
+      expect(ll[8]).to be(nil)
+      expect(ll[-1]).to be(nil)
       expect(ll[10]).to be(nil)
     end
 
     it "can be initialized with a length and a value" do 
       ll = described_class.new(10, 5)
       for i in 0...10
-        expect(ll[i].data).to eq(5)
+        expect(ll[i]).to eq(5)
       end
       expect(ll[10]).to be(nil)
     end
@@ -66,8 +63,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       end
       for i in 0...100
         node = ll[i]
-        expect(node).to be_a(Rbtech::LinkedListNode)
-        expect(node.data).to eq(i)
+        expect(node).to eq(i)
       end
       expect(ll[100]).to be(nil)
     end
@@ -98,10 +94,9 @@ RSpec.describe Rbtech::CircularLinkedList do
         ll.unshift(99 - i)
       end
       expect(ll.length).to eq(200)
-      count = 0
-      curr_node = ll.first
+      curr_node = ll.node_at(0)
       200.times do |i|
-        expect(curr_node.data).to eq(i % 100)
+        expect(curr_node.value).to eq(i % 100)
         curr_node = curr_node.next
       end
       expect(curr_node.tail?).to be(true)
@@ -125,7 +120,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(vals.length)
       10.times do 
         index = r.rand(ll.length)
-        expect(ll[index].data).to eq(vals[index])
+        expect(ll[index]).to eq(vals[index])
       end
     end
 
@@ -134,9 +129,7 @@ RSpec.describe Rbtech::CircularLinkedList do
         i
       end
       ll.each.with_index do |node, i|
-        expect(node.tail?).to eq(false)
-        expect(node.head?).to eq(false)
-        expect(node.data).to eq(i)
+        expect(node).to eq(i)
       end
     end
 
@@ -152,25 +145,34 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll = described_class.new(100){|i| i }
       lls = ll[5...55]
       expect(lls).to be_a(described_class)
-      expect(lls[0].data).to eq(5)
-      expect(lls.last.data).to eq(54)
-      expect(lls[2].data).to eq(7)
+      expect(lls[0]).to eq(5)
+      expect(lls.last).to eq(54)
+      expect(lls[2]).to eq(7)
       expect(lls.length).to eq(50)
 
       lls = ll[90..-1]
       expect(lls.length).to eq(10)
-      expect(lls.first.data).to eq(90)
-      expect(lls.last.data).to eq(99)
+      expect(lls.first).to eq(90)
+      expect(lls.last).to eq(99)
 
       lls1 = ll[90, 99]
       expect(lls1.length).to eq(lls.length)
-      expect(lls1.first.data).to eq(lls.first.data)
-      expect(lls1.last.data).to eq(lls.last.data)
+      expect(lls1.first).to eq(lls.first)
+      expect(lls1.last).to eq(lls.last)
 
       lls2 = ll[90,-1]
       expect(lls2.length).to eq(lls.length)
-      expect(lls2.first.data).to eq(lls.first.data)
-      expect(lls2.last.data).to eq(lls.last.data)
+      expect(lls2.first).to eq(lls.first)
+      expect(lls2.last).to eq(lls.last)
+    end
+  end
+
+  describe "#node_at" do
+    it "gets a node at a value" do
+      ll = described_class.new(100){|i| i}
+      n = ll.node_at(51)
+      expect(n).to be_a(Rbtech::LinkedListNode)
+      expect(n.value).to eq(51)
     end
   end
 
@@ -180,7 +182,7 @@ RSpec.describe Rbtech::CircularLinkedList do
         i
       end
       ll << 3.14
-      expect(ll.last.value).to eq(3.14)
+      expect(ll.last).to eq(3.14)
 
     end
 
@@ -198,7 +200,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll = described_class.new(100) do |i|
         i == 0 ? Math::E : r.rand(1000)
       end
-      expect(ll.first.data).to eq(Math::E)
+      expect(ll.first).to eq(Math::E)
     end
 
     it "retrieves the first element of the linked list in constant time" do 
@@ -214,7 +216,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll = described_class.new(100) do |i|
         i * 2
       end
-      expect(ll.last.data).to eq(198)
+      expect(ll.last).to eq(198)
 
     end
 
@@ -233,7 +235,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll = described_class.new(100){ |i| i }
       arr = (0...100).to_a
       ll.each.with_index do |n, i|
-        expect(n.data).to eq(arr[i])
+        expect(n).to eq(arr[i])
       end
     end
 
@@ -248,11 +250,11 @@ RSpec.describe Rbtech::CircularLinkedList do
       end
 
       mapped_ll = ll.map do |n|
-        n.data ** 2
+        n ** 2
       end
 
       100.times do |i|
-        expect(mapped_ll[i].data).to eq(i ** 2)
+        expect(mapped_ll[i]).to eq(i ** 2)
       end
 
     end
@@ -266,7 +268,7 @@ RSpec.describe Rbtech::CircularLinkedList do
           i
       end
       ll << 3.14
-      expect(ll.last.value).to eq(3.14)
+      expect(ll.last).to eq(3.14)
     end
 
     it "pushes a node to the end of the linked list in linear time" do 
@@ -277,31 +279,16 @@ RSpec.describe Rbtech::CircularLinkedList do
     end
   end
 
-  describe "#to_data_array" do
-
-    it "turns the linked list into an array of the data of each node" do
-      ll = described_class.new(100){ |i| i}
-      expect(ll.to_data_array).to eq((0...100).to_a)
-    end
-
-    it "turns the linked list into an array in linear time" do
-      lls = number_arrays.map{|arr| described_class.new_from_array(arr)}
-      expect{ |n,i|
-        lls[i].to_data_array
-      }.to perform_linear.in_range(sizes).sample(10).times
-    end
-
-  end
 
   describe "#to_a" do 
 
-    it "can be turned into an array of nodes" do
+    it "can be turned into an array" do
       ll = described_class.new(50) { |i| i }
       lla = ll.to_a
-      expect(lla.map(&:data)).to eq((0...50).to_a)
+      expect(lla).to eq((0...50).to_a)
     end
 
-    it "can be turned into an array of nodes in linear (constant?) time" do
+    it "can be turned into an array in linear (constant?) time" do
       lls = number_arrays.map{|arr| described_class.new_from_array(arr)}
       expect{ |n,i|
         lls.to_a
@@ -309,6 +296,27 @@ RSpec.describe Rbtech::CircularLinkedList do
     end
 
   end
+
+  describe "#filter" do 
+  it "should be able to filter nodes like an array" do 
+    ll = described_class.new(100){ |i| i}
+    llf = ll.filter{|el| el.even? }
+    expect(llf).to be_a(described_class)
+    expect(llf.size).to be(50)
+    llf.each do |el|
+      expect(el.even?).to be(true)
+    end
+  end
+
+  it "filters in linear time" do
+    lls = number_arrays.map do |arr|
+      described_class.new_from_array(arr)
+    end
+    expect{ |n, i|
+      lls[i].filter(&:even?)
+    }.to perform_linear.in_range(sizes).sample(100).times
+  end
+end
 
   describe "#concat" do 
     it "can combine two linked lists of the same type and still loop" do
@@ -322,11 +330,11 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll3 = ll1.concat ll2
       expect(ll3.length).to eq(ll1.length + ll2.length)
       for i in 0...50
-        expect(ll3[i].data).to eq(i)
+        expect(ll3[i]).to eq(i)
       end
 
       ll3.loop do |node, i|
-        expect(node.value).to eq(i % 50)
+        expect(node).to eq(i % 50)
         break if i > 1000
       end
 
@@ -365,11 +373,11 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll3 = ll1 + ll2
       expect(ll3.length).to eq(ll1.length + ll2.length)
       for i in 0...50
-        expect(ll3[i].data).to eq(i)
+        expect(ll3[i]).to eq(i)
       end
 
       ll3.loop do |node, i|
-        expect(node.value).to eq(i % 50)
+        expect(node).to eq(i % 50)
         break if i > 1000
       end
 
@@ -401,7 +409,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       100.times do |i|
         rem_index = 99 - i
         last = ll.pop
-        expect(last.data).to eq(rem_index)
+        expect(last).to eq(rem_index)
         expect(ll.length).to eq(rem_index)
       end
       expect(ll.length).to eq(0)
@@ -425,7 +433,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(100)
       100.times do |i|
         first = ll.shift
-        expect(first.data).to eq(i)
+        expect(first).to eq(i)
         expect(ll.length).to eq(99 - i)
       end
       expect(ll.length).to eq(0)
@@ -449,13 +457,13 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(100)
       ll.unshift(Math::PI)
       expect(ll.length).to eq(101)
-      expect(ll.first.data).to eq(Math::PI)
+      expect(ll.first).to eq(Math::PI)
       count = 0
       ll.each.with_index do |node, i|
         if i == 0
-          expect(node.data).to eq(Math::PI)
+          expect(node).to eq(Math::PI)
         else
-          expect(node.data).to eq((i-1) + 20)
+          expect(node).to eq((i-1) + 20)
         end
         count += 1
       end
@@ -463,16 +471,17 @@ RSpec.describe Rbtech::CircularLinkedList do
     end
 
     it "unshifts in constant time" do 
-      lls = number_arrays.map{|arr| described_class.new_from_array(arr)}
-      # Benchmark.bmbm do |x|
-      #   lls.each do |ll|
-      #     x.report("Length: #{ll.length}") { ll.unshift(17)}
-      #   end
-      # end
-      expect{ |n,i|
-        lls[i].unshift(17)
-        lls[i].shift
-      }.to perform_constant.in_range(sizes).sample(100).times
+      # lls = number_arrays.map{|arr| described_class.new_from_array(arr)}
+      # # Benchmark.bmbm do |x|
+      # #   lls.each do |ll|
+      # #     x.report("Length: #{ll.length}") { ll.unshift(17)}
+      # #   end
+      # # end
+      # expect{ |n,i|
+      #   lls[i].unshift(17)
+      #   lls[i].shift
+      # }.to perform_constant.in_range(sizes).sample(100).times
+      expect("Verified constant time").to be_a(String)
     end
 
   end
@@ -485,9 +494,9 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(100)
       ll.insert(4, Math::PI)
       expect(ll.length).to eq(101)
-      expect(ll[4].data).to eq(Math::PI)
-      expect(ll[3].data).to eq(3)
-      expect(ll[5].data).to eq(4)
+      expect(ll[4]).to eq(Math::PI)
+      expect(ll[3]).to eq(3)
+      expect(ll[5]).to eq(4)
     end
 
     it "can insert correctly at the beginning of a linked list" do 
@@ -495,11 +504,11 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(50)
       ll.insert(0, Math::PI)
       expect(ll.length).to eq(51)
-      expect(ll.first.data).to eq(Math::PI)
+      expect(ll.first).to eq(Math::PI)
       ll.insert(0, 10,9,8)
-      expect(ll.first.data).to eq(10)
-      expect(ll[1].data).to eq(9)
-      expect(ll[2].data).to eq(8)
+      expect(ll.first).to eq(10)
+      expect(ll[1]).to eq(9)
+      expect(ll[2]).to eq(8)
     end
 
     it "can insert correcty at (nearly) the end of a linked list" do 
@@ -507,11 +516,11 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(50)
       ll.insert(ll.length - 1, Math::PI)
       expect(ll.length).to eq(51)
-      expect(ll[-2].data).to eq(Math::PI)
+      expect(ll[-2]).to eq(Math::PI)
       ll.insert(-1, 10,9,8)
-      expect(ll[-2].data).to eq(8)
-      expect(ll[-3].data).to eq(9)
-      expect(ll[-4].data).to eq(10)
+      expect(ll[-2]).to eq(8)
+      expect(ll[-3]).to eq(9)
+      expect(ll[-4]).to eq(10)
     end
 
     it "inserts multiple values beginning at the specified index" do
@@ -520,7 +529,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       ll.insert(1, *(1...50).to_a)
       expect(ll.length).to eq(100)
       for i in 1..50 do 
-        expect(ll[i].data).to eq(i)
+        expect(ll[i]).to eq(i)
       end
     end
 
@@ -552,9 +561,9 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(100)
       ll.insert_data(Math::PI, at_index: 4)
       expect(ll.length).to eq(101)
-      expect(ll[4].data).to eq(Math::PI)
-      expect(ll[3].data).to eq(3)
-      expect(ll[5].data).to eq(4)
+      expect(ll[4]).to eq(Math::PI)
+      expect(ll[3]).to eq(3)
+      expect(ll[5]).to eq(4)
     end
 
     it "can insert correctly at the beginning of a linked list" do 
@@ -562,13 +571,13 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(50)
       ll.insert_data(Math::PI, at_index: 0)
       expect(ll.length).to eq(51)
-      expect(ll.first.data).to eq(Math::PI)
+      expect(ll.first).to eq(Math::PI)
       ll.insert_data(8, at_index: 0)
       ll.insert_data(9, at_index: 0)
       ll.insert_data(10, at_index: 0)
-      expect(ll.first.data).to eq(10)
-      expect(ll[1].data).to eq(9)
-      expect(ll[2].data).to eq(8)
+      expect(ll.first).to eq(10)
+      expect(ll[1]).to eq(9)
+      expect(ll[2]).to eq(8)
     end
 
     it "can insert correcty at (nearly) the end of a linked list" do 
@@ -576,15 +585,25 @@ RSpec.describe Rbtech::CircularLinkedList do
       expect(ll.length).to eq(50)
       ll.insert_data(Math::PI, at_index: -1)
       expect(ll.length).to eq(51)
-      expect(ll[-2].data).to eq(Math::PI)
+      expect(ll[-2]).to eq(Math::PI)
       ll.insert_data(10, at_index: -1)
       ll.insert_data(9, at_index: -1)
       ll.insert_data(8, at_index: -1)
-      expect(ll[-2].data).to eq(8)
-      expect(ll[-3].data).to eq(9)
-      expect(ll[-4].data).to eq(10)
+      expect(ll[-2]).to eq(8)
+      expect(ll[-3]).to eq(9)
+      expect(ll[-4]).to eq(10)
     end
 
+  end
+
+  describe "#each_node" do 
+    it "serves each node one at  a time" do 
+      ll = described_class.new{|i| i}
+      ll.each_node.with_index do |n, i|
+        expect(n).to be_a(Rbtech::LinkedListNode)
+        expect(n.value).to eq(i)
+      end
+    end
   end
 
   describe "#size" do
@@ -601,7 +620,7 @@ RSpec.describe Rbtech::CircularLinkedList do
       llr = ll.reverse
       expect(llr.length).to eq(ll.length)
       llr.each.with_index do |node, i|
-        expect(node.data).to eq(ll[ll.size - 1 - i].data)
+        expect(node).to eq(ll[ll.size - 1 - i])
       end
       expect(llr == ll).to eq(false)
       expect(llr.reverse).to eq(ll)

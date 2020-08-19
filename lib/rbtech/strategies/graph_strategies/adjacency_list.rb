@@ -20,7 +20,7 @@ class Rbtech::AdjacencyListStrategy
 
     # O(edge_count)
     def remove_node(node_index)
-        @nodes[node_index] = null
+        @nodes[node_index] = nil
         remove_connections_from(node_index)
         remove_connections_to(node_index)
     end
@@ -33,7 +33,7 @@ class Rbtech::AdjacencyListStrategy
     #O(edge_count)
     def remove_connections_undirected(node_index)
         @adj_list[node_index].each do |i_weight_tuple|
-            @adj_list[i_weight_tuple.value[0]] = @adj_list[i_weight_tuple.value[0]].filter{ |iwt| iwt.value[0] != node_index }
+            @adj_list[i_weight_tuple[0]] = @adj_list[i_weight_tuple[0]].filter{ |iwt| iwt[0] != node_index }
         end
         @adj_list[node_index] = Rbtech::SinglyLinkedList.new
     end
@@ -41,7 +41,7 @@ class Rbtech::AdjacencyListStrategy
     #O(edge_count)
     def remove_connections_to(node_index)
         for i in 0...@adj_list.length
-            @adj_list[i] = @adj_list[i].filter{ |index_weight_tuple| index_weight_tuple.value[0] != node_index }
+            @adj_list[i] = @adj_list[i].filter{ |index_weight_tuple| index_weight_tuple[0] != node_index }
         end
     end
 
@@ -53,20 +53,20 @@ class Rbtech::AdjacencyListStrategy
     # O(edge_count)
     def remove_connection(from: , to: )
         @adj_list[from] = @adj_list[from].filter do |index_weight_tuple|
-            index_weight_tuple.value[0] != to
+            index_weight_tuple[0] != to
         end
     end
 
     # O(1)
     def get_connections_from(node_index)
-        @adj_list[node_index]
+        @adj_list[node_index].to_data_array
     end
 
     # O(edge_count)
     def get_connections_to(node_index) 
         @adj_list.map.with_index do |connections, from_index|
             connections.find{|conn| conn[0] == node_index}
-        end.compact
+        end.to_data_array.compact
     end
 
     # O(edge_count)
@@ -78,8 +78,8 @@ class Rbtech::AdjacencyListStrategy
     # Return infiinity if no connection exists
     def connection_weight(from: , to: )
         @adj_list[from].each do |index_weight_tuple|
-            if index_weight_tuple.value[0] == to
-                return index_weight_tuple.value[1]
+            if index_weight_tuple[0] == to
+                return index_weight_tuple[1]
             end
         end
         Float::INFINITY

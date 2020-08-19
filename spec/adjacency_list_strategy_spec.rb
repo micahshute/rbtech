@@ -1,7 +1,35 @@
 RSpec.describe Rbtech::AdjacencyListStrategy do 
 
-  let(:Wrapper) do
+  let(:wrapper) do
     Struct.new(:data)
+  end
+
+  let(:sizes) do 
+    sizes = bench_range(8, 200_000) # => [8, 64, 512, 4096, 32768, 100000]
+  end
+
+  let(:number_arrays) do 
+    sizes.map { |n| Array.new(n) { rand(n) } }
+  end
+
+  let(:proto_graphs_no_conns) do
+    number_arrays.map do |arr|
+      described_class.new(arr)
+    end
+  end
+
+  let(:proto_graphs_with_conns) do
+    r = Random.new
+    number_arrays.map do |arr|
+      g = described_class.new(arr)
+      for i in 0...g.nodes.length
+        node_connections = r.rand(g.nodes.length) + 1
+        node_connections.times do 
+          g.add_connection(from: i, to: r.rand(g.nodes.length), weight: r.rand(10) + 1)
+        end
+      end
+      g
+    end
   end
 
 
@@ -22,29 +50,60 @@ RSpec.describe Rbtech::AdjacencyListStrategy do
   describe "#add_node" do
     it "properly adds a node" do
       g = described_class.new
-      g.add_node(Wrapper.new({x: 10, y: 30}))
+      g.add_node(wrapper.new({x: 10, y: 30}))
       expect(g.nodes.length).to eq(1)
       expect(g.instance_variable_get("@adj_list").length).to eq(1)
     end
 
 
     it "adds a node in constant time" do
-      let(:sizes) do 
-        sizes = bench_range(8, 200_000) # => [8, 64, 512, 4096, 32768, 100000]
-      end
-    
-      let(:number_arrays) do 
-        sizes.map { |n| Array.new(n) { rand(n) } }
-      end
+      graphs = proto_graphs_no_conns
+      expect{ |n,i|
+        graphs[i].add_node(wrapper.new("new node"))
+      }.to perform_constant.in_range(sizes).sample(500).times
     end
   end
 
   describe "#remove_node" do
     it "properly removes a node" do 
-      expect(false).to eq(true)
+      nodes = (0...100).map{|n| wrapper.new(n)}
+      r = Random.new
+      g = described_class.new(nodes)
+      conns_to_node_99 = []
+      for i in 0...100 
+        conn_count = r.rand(100)
+        conn_count.times do 
+          to = r.rand(g.nodes.length)
+          weight = r.rand(10) + 1
+          g.add_connection(from: i, to: to, weight: weight)
+          conns_to_node_99.unshift(to) if i == 99
+        end
+      end
+      expect(g.nodes.last.data).to eq(99)
+      connected_nodes = g.get_connections_from(99)
+      expect(connected_nodes.map{|nw| nw[0]}).to eq(conns_to_node_99)
+      connection_exists = false
+      for i in 0...99
+        if g.connection_exist?(from: i, to: 99)
+          connection_exists = true
+          break
+        end
+      end
+      expect(connection_exists).to eq(true)
+      g.remove_node(99)
+      expect(g.nodes.last).to be(nil)
+      expect(g.get_connections_from(99).length).to eq(0)
+      for i in 0...100
+        expect(g.connection_exist?(from: i, to: 99)).to eq(false)
+      end
+      
     end
 
     it "removes a node in linear (edge count) time" do
+      # graphs = proto_graphs_with_conns
+      # expect{ |n,i|
+      #   graphs[i].remove_node(0)
+      # }.to perform_linear.in_range(sizes).sample(2).times
       expect(false).to eq(true)
     end
   end

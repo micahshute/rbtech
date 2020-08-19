@@ -8,17 +8,22 @@ class Rbtech::SinglyLinkedList < Rbtech::AbstractLinkedList
         end
     end
 
+    def node_at(i)
+        index = i < 0 ? length + i : i 
+        return nil if index < 0
+        node = @head.next
+        return nil if node.tail?
+        index.times do 
+            node = node.next
+            return nil if node.tail?
+        end
+        node
+    end
+
     def [](i, endi=nil)
         if i.is_a?(Integer) && endi.nil?
-            index = i < 0 ? length + i : i 
-            return nil if index < 0
-            node = @head.next
-            return nil if node.tail?
-            index.times do 
-                node = node.next
-                return nil if node.tail?
-            end
-            node
+            n = node_at(i)
+            n ? n.value : nil
         elsif i.is_a?(Range)
             raise TypeError.new('no implicit conversion of Range into Integer') if !endi.nil?
             start_i = i.begin
@@ -27,7 +32,7 @@ class Rbtech::SinglyLinkedList < Rbtech::AbstractLinkedList
             end_i = length + end_i if end_i < 0 
             size = end_i - start_i + 1
             return nil if end_i < start_i
-            node = self.[](start_i)
+            node = self.node_at(start_i)
             self.class.new(size) do 
                 val = node.data
                 node = node.next

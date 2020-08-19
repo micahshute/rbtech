@@ -39,7 +39,7 @@ class Rbtech::AbstractLinkedList
         end
     end
 
-    def each(&block)
+    def each_node(&block)
         if block_given?
             node = @head.next
             until node.tail? do 
@@ -52,11 +52,25 @@ class Rbtech::AbstractLinkedList
         end
     end
 
+
+    def each(&block)
+        if block_given?
+            node = @head.next
+            until node.tail? do 
+                yield node.value
+                node = node.next
+            end
+            self
+        else
+            to_enum(:each)
+        end
+    end
+
     def map(&block) 
         if block_given?
             node = @head.next
             self.class.new(self.length) do 
-                val = yield(node)
+                val = yield(node.value)
                 node = node.next
                 val
             end
@@ -70,7 +84,7 @@ class Rbtech::AbstractLinkedList
             new_vals = []
             node = @head.next
             while !node.tail?
-                should_add = yield(node)
+                should_add = yield(node.value)
                 new_vals << node.value if should_add
                 node = node.next
             end
@@ -82,9 +96,9 @@ class Rbtech::AbstractLinkedList
 
     def sort(&block)
         if block_given?
-            self.class.new_from_array(self.to_a.sort(&block).map(&:data))
+            self.class.new_from_array(self.to_a.sort(&block))
         else
-            self.class.new_from_array(self.to_data_array.sort)
+            self.class.new_from_array(self.to_a.sort)
         end
     end
 
@@ -105,6 +119,10 @@ class Rbtech::AbstractLinkedList
         end
 
     end
+
+    def node_at(i)
+        raise NotImplementedError.new("Implement node_at method") 
+    end
     
     def [](i)    
         raise NotImplementedError.new("Implement [] method")   
@@ -116,7 +134,7 @@ class Rbtech::AbstractLinkedList
 
     def []=(i, val)
         raise ArgumentError.new("#{i} must be an Integer not a #{i.class}") if !i.is_a?(Integer)
-        node_to_change = self.[](i)
+        node_to_change = self.node_at(i)
         raise ArgumentError.new("LinkedList out of bounds") if node_to_change.nil?
         if val.is_a?(@node_type)
             node_to_change.data = val.data
@@ -147,7 +165,7 @@ class Rbtech::AbstractLinkedList
     end
 
     def to_s
-        to_data_array.to_s
+        to_a.to_s
     end
 
     def insert_data(val, at_index: )
@@ -158,7 +176,7 @@ class Rbtech::AbstractLinkedList
             # TODO: Make custom error
             raise ArgumentError.new("Exceeded LinkedList length")
         else
-            prev_node = self.[](at_index - 1)
+            prev_node = self.node_at(at_index - 1)
             prev_node.insert(new_node)
         end
     end
@@ -174,15 +192,15 @@ class Rbtech::AbstractLinkedList
         else
             to_del = @head.next
             @head.delete_next
-            to_del
+            to_del.value
         end
     end
      
     def ==(ll)
         return false if ll.class != self.class
         return false if ll.length != self.length
-        my_node = self.first
-        ll_node = ll.first
+        my_node = self.node_at(0)
+        ll_node = ll.node_at(0)
         self.length.times do 
             return false if my_node.data != ll_node.data
             my_node = my_node.next
@@ -196,11 +214,11 @@ class Rbtech::AbstractLinkedList
         if @length == 0
             nil
         else
-            second_to_last_node = self.[](-2)
+            second_to_last_node = self.node_at(-2)
             second_to_last_node ||= @head
             to_del = second_to_last_node.next
             second_to_last_node.delete_next
-            to_del
+            to_del.value
         end
     end
 
@@ -208,8 +226,14 @@ class Rbtech::AbstractLinkedList
 
     def push(arg)
         node = to_node(arg)
-        last_node = self.[](-1)
-        last_node.insert(node)
+        if length == 0
+            first_node = @head
+            @head.insert(node)
+        else
+            last_node = self.node_at(-1)
+            last_node.insert(node)
+        end
+
     end
 
     def <<(arg)
@@ -223,9 +247,9 @@ class Rbtech::AbstractLinkedList
         lla = ll.to_a
         self.class.new(len) do |i|
             if i < self.length
-                self_a[i].data
+                self_a[i]
             else
-                lla[i - self.length].data
+                lla[i - self.length]
             end
         end
     end
@@ -234,16 +258,8 @@ class Rbtech::AbstractLinkedList
         concat(ll)
     end
 
-    def to_data_array
-        curr_node = @head
-        Array.new(self.length) do 
-            curr_node = curr_node.next
-            curr_node.data
-        end
-    end
-
     def reverse
-        self.class.new_from_array(self.to_data_array.reverse)
+        self.class.new_from_array(self.to_a.reverse)
     end
 
     private

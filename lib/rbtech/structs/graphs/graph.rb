@@ -10,6 +10,7 @@ class Rbtech::Graph
         
     end
 
+    attr_reader :size
 
     def initialize(nodes: [], strategy: :adjacency_list)
         case connect_strat
@@ -20,6 +21,7 @@ class Rbtech::Graph
         else
             ArgumentError.new("Please choose a valid connection strategy: #{STRATEGIES}") if !STRATEGIES.include?(strategy)
         end
+        @size = nodes.length
     end
 
     def nodes
@@ -28,6 +30,7 @@ class Rbtech::Graph
 
     def add_node(data)
         @strat.add_node(data)
+        @size += 1
     end 
 
     # TODO: Strategies as of now just remove all connections to and
@@ -36,6 +39,7 @@ class Rbtech::Graph
     # "clean up" the @strat 
     def remove_node(index)
         @strat.remove_node(index)
+        @ize -= 1
     end
     
 end

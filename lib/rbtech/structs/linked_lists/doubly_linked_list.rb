@@ -8,23 +8,28 @@ class Rbtech::DoublyLinkedList < Rbtech::AbstractLinkedList
         end
     end
 
+    def node_at(i)
+        index = i < 0 ? length + i : i
+        return nil if index >= length || index < 0
+        if index > length / 2
+            from_back = length - index
+            curr_node = @tail
+            from_back.times do 
+                curr_node = curr_node.prev
+            end
+        else
+            curr_node = @head.next
+            index.times do 
+                curr_node = curr_node.next
+            end
+        end
+        curr_node
+    end
+
     def [](i, endi=nil)
         if i.is_a?(Integer) && endi.nil?
-            index = i < 0 ? length + i : i
-            return nil if index >= length || index < 0
-            if index > length / 2
-                from_back = length - index
-                curr_node = @tail
-                from_back.times do 
-                    curr_node = curr_node.prev
-                end
-            else
-                curr_node = @head.next
-                index.times do 
-                    curr_node = curr_node.next
-                end
-            end
-            curr_node
+            n = node_at(i)
+            n ? n.value : nil
         elsif i.is_a?(Range)
             raise TypeError.new('no implicit conversion of Range into Integer') if !endi.nil?
             start_i = i.begin
@@ -33,7 +38,7 @@ class Rbtech::DoublyLinkedList < Rbtech::AbstractLinkedList
             end_i = length + end_i if end_i < 0 
             size = end_i - start_i + 1
             return nil if end_i < start_i
-            node = self.[](start_i)
+            node = self.node_at(start_i)
             self.class.new(size) do 
                 val = node.data
                 node = node.next

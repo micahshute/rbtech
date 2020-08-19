@@ -10,8 +10,8 @@ class Rbtech::DoublyLinkedListNode < Rbtech::LinkedListNode
 
     def next=(n)
         # if !n.tail?
-            raise ArgumentError.new("Prev must be a DoublyLinkedListNode") if !(n.respond_to?(:next) && n.respond_to?(:prev))
-            @next = n
+        raise ArgumentError.new("Prev must be a DoublyLinkedListNode") if !(n.respond_to?(:next) && n.respond_to?(:prev))
+        @next = n
         # else
         #     raise ArgumentError.new("Cannot set next on a tail sentinel")
         # end 
@@ -19,8 +19,8 @@ class Rbtech::DoublyLinkedListNode < Rbtech::LinkedListNode
 
     def prev=(p)
         # if !head?
-            raise ArgumentError.new("Prev must be a DoublyLinkedListNode") if !(p.respond_to?(:next) && p.respond_to?(:prev))
-            @prev = p
+        raise ArgumentError.new("Prev must be a DoublyLinkedListNode") if !(p.respond_to?(:next) && p.respond_to?(:prev))
+        @prev = p
         # else
         #     raise ArgumentError.new("You cannot set prev to a head sentinel")
         # end

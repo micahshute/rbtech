@@ -11,7 +11,7 @@ class Rbtech::CircularLinkedList < Rbtech::SinglyLinkedList
         return nil if node.tail?
         i = 0
         while true
-            yield(node, i)
+            yield(node.value, i)
             node = node.next
             while node.head? || node.tail? 
                 node = node.next
