@@ -1,6 +1,7 @@
 class Rbtech::AbstractLinkedList
 
     include Enumerable
+    include Cycleable
 
     def self.new_from_array(arr)
         new(arr.length) do |i|
@@ -260,6 +261,13 @@ class Rbtech::AbstractLinkedList
 
     def reverse
         self.class.new_from_array(self.to_a.reverse)
+    end
+
+    def tortoise_hare
+        super(self.node_at(0), ->(current_node){
+            return nil if current_node.nil? || current_node.next.tail?
+            return current_node.next
+        })
     end
 
     private

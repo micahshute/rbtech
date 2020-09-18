@@ -6,16 +6,14 @@ class Rbtech::AdjacencyListStrategy
         # adj list is a multi-dimensional array.
         # each element of the outside arary is an array
         # of [connected_node, distance] tuples
-
         @nodes = nodes
-        # TODO: Turn into an array of LinkedList Objects (prevents array resizing)
-        @adj_list = Rbtech::DoublyLinkedList.new(@nodes.length){ Rbtech::SinglyLinkedList.new }
+        @adj_list = Array.new(@nodes.length){ Array.new }
     end
 
     # O(1)
     def add_node(data)
         @nodes << data
-        @adj_list << Rbtech::SinglyLinkedList.new
+        @adj_list << Array.new
     end
 
     # O(edge_count)
@@ -27,15 +25,16 @@ class Rbtech::AdjacencyListStrategy
 
     # O(1)
     def remove_connections_from(node_index)
-        @adj_list[node_index] = Rbtech::SinglyLinkedList.new
+        @adj_list[node_index] = Array.new
     end
+
 
     #O(edge_count)
     def remove_connections_undirected(node_index)
         @adj_list[node_index].each do |i_weight_tuple|
             @adj_list[i_weight_tuple[0]] = @adj_list[i_weight_tuple[0]].filter{ |iwt| iwt[0] != node_index }
         end
-        @adj_list[node_index] = Rbtech::SinglyLinkedList.new
+        @adj_list[node_index] = Array.new
     end
 
     #O(edge_count)
@@ -47,7 +46,7 @@ class Rbtech::AdjacencyListStrategy
 
     # O(1)
     def add_connection(from: , to:, weight: 1)
-        @adj_list[from].unshift([to, weight])
+        @adj_list[from] << [to, weight]
     end
 
     # O(edge_count)
@@ -59,14 +58,14 @@ class Rbtech::AdjacencyListStrategy
 
     # O(1)
     def get_connections_from(node_index)
-        @adj_list[node_index].to_data_array
+        @adj_list[node_index].to_a
     end
 
     # O(edge_count)
     def get_connections_to(node_index) 
         @adj_list.map.with_index do |connections, from_index|
-            connections.find{|conn| conn[0] == node_index}
-        end.to_data_array.compact
+            connections.find{|conn| conn[0] == node_index}&.dup&.tap{|conn| conn[0] = from_index }
+        end.compact
     end
 
     # O(edge_count)

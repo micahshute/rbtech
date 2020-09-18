@@ -9,6 +9,56 @@ RSpec.describe Rbtech::SinglyLinkedList do
     sizes.map { |n| Array.new(n) { rand(n) } }
   end
 
+  # NOTE: LL will be slower than arrays for unshift because
+  # ruby #unshift is amortized O(1)
+
+  it "is faster than arrays when removing and inserting in the array" do
+
+    
+    size = 100000
+    ll = described_class.new(size){|i| i}
+    ar = Array.new(size){|i| i}
+    insert_at = 1000
+    node_before_insertion = ll.node_at(insert_at - 1)
+
+    # insert_at_node = ll.node_at(insert_at)
+    # Benchmark.bmbm do |x|
+    #   x.report("LL w/length: #{size}") { 
+    #     size.times do 
+    #       ll.unshift('test')
+    #       # insert_at_node.insert(200)
+    #       # insert_at_node.delete_next
+    #     end
+    #   }
+    # end
+
+    # Benchmark.bmbm do |x|
+    #   x.report("Arr w/length: #{size}") { 
+    #     size.times do 
+    #       # ar.insert(insert_at, 200)
+    #       # ar.delete_at(insert_at + 1)
+    #       ar.unshift('test')
+    #     end
+    #   }
+    # end
+
+    expect{
+      size.times do 
+        node_before_insertion.insert(200)
+        node_before_insertion.delete_next
+      end
+
+    }.to perform_faster_than{
+      size.times do
+        ar.insert(insert_at, 200)
+        ar.delete_at(insert_at)
+      end
+    }
+
+    expect(node_before_insertion.list).to eq(described_class.new_from_array(ar))
+
+  end
+
   it "can be initialized with an array in linear time" do
     a = (0..100).to_a
     ll = described_class.new_from_array(a)
@@ -125,6 +175,29 @@ RSpec.describe Rbtech::SinglyLinkedList do
       expect(has_iterated_enough).to be(true)
     end
 
+  end
+
+  describe "#tortoise_hare" do
+    it "can detect cycles" do 
+
+      ll = described_class.new(100){|i| i}
+      expect(ll.tortoise_hare).to be(nil)
+      ll = ll.concat described_class.new(100){|i| i}
+      expect(ll.tortoise_hare).to be(nil)
+      first_cycle_node = ll.node_at(22)
+      last_cycle_node = ll.node_at(45)
+      last_cycle_node.next = first_cycle_node
+      expect(ll.tortoise_hare).to eq(first_cycle_node)
+
+      ll1 = described_class.new(100){|i| i}
+      expect(ll1.tortoise_hare).to be(nil)
+      ll1 = ll1.concat ll1
+      expect(ll1.tortoise_hare).to be(nil)
+      first_cycle_node = ll1.node_at(43)
+      last_cycle_node = ll1.node_at(104)
+      last_cycle_node.next = first_cycle_node
+      expect(ll1.tortoise_hare).to eq(first_cycle_node)
+    end
   end
 
   describe '#[]' do
@@ -646,6 +719,7 @@ RSpec.describe Rbtech::SinglyLinkedList do
       expect(llr == ll).to eq(false)
       expect(llr.reverse).to eq(ll)
     end
+
 
 
     it "reverses a linked list in linear time" do
