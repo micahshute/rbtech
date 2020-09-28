@@ -1,5 +1,7 @@
 class Rbtech::IncidenceListStrategy
 
+    include Rbtech::HasNodes
+
 
     def initialize(nodes)
         @nodes = nodes

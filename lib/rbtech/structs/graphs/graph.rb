@@ -1,25 +1,24 @@
 class Rbtech::Graph
 
     STRATEGIES = [
-        :adjacecny_list,
+        :adjacency_list,
         :adjacency_matrix
     ]
 
-    def self.new_from_nodes(nodes, strategy: :adjacecny_list)
-        g = new(nodes: nodes, strategy: strategy)
-        
+    def self.new_from_nodes(nodes, strategy: :adjacency_list)
+        new(nodes: nodes, strategy: strategy)
     end
 
     attr_reader :size
 
     def initialize(nodes: [], strategy: :adjacency_list)
-        case connect_strat
+        case strategy
         when :adjacency_list
             @strat = Rbtech::AdjacencyListStrategy.new(nodes)
         when :adjacency_matrix
             @strat = Rbtech::AdjacencyMatrixStrategy.new(nodes)
         else
-            ArgumentError.new("Please choose a valid connection strategy: #{STRATEGIES}") if !STRATEGIES.include?(strategy)
+            raise ArgumentError.new("Please choose a valid connection strategy: #{STRATEGIES}") 
         end
         @size = nodes.length
     end

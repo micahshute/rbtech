@@ -1,5 +1,7 @@
 class Rbtech::AdjacencyMatrixStrategy
 
+    include Rbtech::HasNodes
+
     def initialize(nodes = [])
         # adj list is a multi-dimensional array.
         # each element of the outside arary is an array

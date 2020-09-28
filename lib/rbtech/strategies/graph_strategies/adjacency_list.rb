@@ -1,6 +1,6 @@
 class Rbtech::AdjacencyListStrategy
 
-    attr_reader :nodes
+    include Rbtech::HasNodes
 
     def initialize(nodes = [])
         # adj list is a multi-dimensional array.
