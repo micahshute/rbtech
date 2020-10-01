@@ -1,6 +1,6 @@
 class Rbtech::BinaryTree 
 
-    include TreeMethods
+    include Rbtech::TreeMethods
 
     def initialize(nodes: [])
         @nodes = nodes 

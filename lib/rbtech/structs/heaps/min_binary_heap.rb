@@ -3,7 +3,8 @@ class Rbtech::MinBinaryHeap < Rbtech::BinaryTree
     include Rbtech::Heapable
 
 
-    def initialize
+    def initialize(nodes: [])
+        super(nodes: nodes)
         @heap_type = :min
     end
 
