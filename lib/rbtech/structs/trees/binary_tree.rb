@@ -19,22 +19,27 @@ class Rbtech::BinaryTree
         i < 0 ? nil : i
     end
 
-    def left_child_index(parent_index)
-        i = parent_index * 2 + 1
+    def parent(index)
+        i = parent_index(index)
+        i.nil? ? i : @nodes[i]
+    end
+
+    def left_child_index(parent_i)
+        i = parent_i * 2 + 1
         i >= size ? nil : i
     end
 
-    def right_child_index(parent_index)
-        i = parent_index * 2 + 2
+    def right_child_index(parent_i)
+        i = parent_i * 2 + 2
         i >= size ? nil : i 
     end
 
-    def right_child(parent_index)
-        @nodes[right_child_index(parent_index)]
+    def right_child(parent_i)
+        @nodes[right_child_index(parent_i)]
     end
 
-    def left_child(parent_index)
-        @nodes[left_child_index(parent_index)]
+    def left_child(parent_i)
+        @nodes[left_child_index(parent_i)]
     end
 
     def add(node)
