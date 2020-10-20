@@ -11,6 +11,7 @@ module Rbtech::Heapable
     # APIs required to include:
     # #children_indices -> return array of all children indices given a node index
     # @heap_type must be set upon instantiation (to a valid value in HEAP_TYPES)
+    # #parent_index needed for bubble_up
 
     HEAP_TYPES = [
         :min,

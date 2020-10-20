@@ -11,3 +11,5 @@
 - Rselect (find ith order statistic)
 - Graph min cut
 - Queue via doubly linked list (or array, check rutimes)
+- Kosaraju (graph)
+- Twoset problem (graph / SCCs)

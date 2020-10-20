@@ -2,6 +2,8 @@ class Rbtech::BinaryTree
 
     include Rbtech::TreeMethods
 
+    attr_reader :nodes
+
     def initialize(nodes: [])
         @nodes = nodes 
     end
@@ -35,19 +37,21 @@ class Rbtech::BinaryTree
     end
 
     def right_child(parent_i)
-        @nodes[right_child_index(parent_i)]
+        rci = right_child_index(parent_i)
+        rci.nil? ? nil : @nodes[rci]
     end
 
     def left_child(parent_i)
-        @nodes[left_child_index(parent_i)]
+        lci = left_child_index(parent_i)
+        lci.nil? ? nil : @nodes[lci]
     end
 
     def add(node)
         @nodes << node
     end
 
-    def update(index: , with: )
-        @nodes[index] = with
+    def update(index: , to: )
+        @nodes[index] = to
     end
 
 
