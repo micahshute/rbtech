@@ -18,6 +18,13 @@ module Rbtech::Heapable
         :max
     ]
 
+    def insert(val, &block)
+        if !block_given?
+            block = ->(a){a}
+        end
+        location = add_node(val)
+        bubble_up(location, &block)
+    end
 
     # &block is handed a node and is in charge of returning the 
     # property that should be evaluated by the should_swap_predicate
@@ -53,48 +60,81 @@ module Rbtech::Heapable
         end
     end
 
-    def pop(&block)
+    def pop_iter(predicate_fn, &block)
+        while nodes.length > 0
+            yield(pop_root(&predicate_fn))
+        end
+    end
+
+    def delete_node(index, &block) 
+        # swap first node and node at index
+        # delete first node (pop)
+        # buble_up node at index (first node)
+    end
+
+    def pop_root(&block)
+        return nil if nodes.length == 0
+        if nodes.length == 1
+            orig_val = current_to_original_mapping[0]
+            current_to_original_mapping[0] = nil
+            original_to_current_mapping[orig_val] = nil
+            return nodes.pop
+        end
         last = nodes.pop
         popval = nodes[0]
         nodes[0] = last
         original_last = current_to_original_mapping[nodes.length]
         original_first = current_to_original_mapping[0]
-
         original_to_current_mapping[original_first] = nil
         original_to_current_mapping[original_last] = 0
         current_to_original_mapping[0] = original_last
         current_to_original_mapping[nodes.length] = nil
-
         heapify_node(0, &block)
         popval
     end
 
     def update_node(index , update_proc, &comparison_proc)
-        update(index, update_proc)
-        bubble_up(index, &comparison_proc)
-        heapify_node(index, &comparison_proc)
+        if !block_given?
+            comparison_proc = ->(a){a}
+        end
+        relative_index = get_current_node_index(index)
+        update(relative_index, update_proc)
+        bubble_up(relative_index, &comparison_proc)
+        heapify_node(relative_index, &comparison_proc)
     end
 
     def increase_value(index, update_proc, &comparison_proc)
+        if !block_given?
+            comparison_proc = ->(a){a}
+        end
+        relative_index = get_current_node_index(index)
         case @heap_type
         when :min
-            update_heapify_node(index, update_proc, &comparison_proc)
+            update_heapify_node(relative_index, update_proc, &comparison_proc)
         when :max
-            update_bubble_up(index, update_proc, &comparison_proc)
+            update_bubble_up(relative_index, update_proc, &comparison_proc)
         else
             raise ArgumentError.new("Incorrect @heap_type given: #{@heap_type}; must be in #{HEAP_TYPES}")
         end
     end
 
     def decrease_value(index, update_proc, &comparison_proc)
+        if !block_given?
+            comparison_proc = ->(a){a}
+        end
+        relative_index = get_current_node_index(index)
         case @heap_type
         when :min
-            update_bubble_up(index, update_proc, &comparison_proc)
+            update_bubble_up(relative_index, update_proc, &comparison_proc)
         when :max
-            update_heapify_node(index, update_proc, &comparison_proc)
+            update_heapify_node(relative_index, update_proc, &comparison_proc)
         else
             raise ArgumentError.new("Incorrect @heap_type given: #{@heap_type}; must be in #{HEAP_TYPES}")
         end
+    end
+
+    def peek
+        nodes[0]
     end
 
 
@@ -106,6 +146,8 @@ module Rbtech::Heapable
             return ->(a,b){ a < b}
         when :max
             return ->(a,b){ a > b}
+        else
+            raise StandardError("Incorrect @heap_type given, curent value is #{@heap_type}")
         end
     end
 
@@ -129,9 +171,6 @@ module Rbtech::Heapable
     end 
 
     def update_bubble_up(index, update_proc, &comparison_proc)
-        if !block_given?
-            comparison_proc = ->(a){a}
-        end
         update(index, update_proc)
         bubble_up(index, &comparison_proc)
     end
@@ -139,9 +178,6 @@ module Rbtech::Heapable
     # Used if increase a value in min node
     # or decreasing a value in a max node
     def update_heapify_node(index, update_proc, &comparison_proc)
-        if !block_given?
-            comparison_proc = ->(a){a}
-        end
         update(index, update_proc)
         heapify_node(index, &comparison_proc)
     end

@@ -5,7 +5,7 @@ class Rbtech::BinaryTree
     attr_reader :nodes
 
     def initialize(nodes: [])
-        @nodes = nodes 
+        @nodes = nodes.dup
     end
 
     def root
@@ -17,6 +17,7 @@ class Rbtech::BinaryTree
     end
 
     def parent_index(index)
+        return nil if index >= nodes.length
         i = (index - 1) / 2
         i < 0 ? nil : i
     end

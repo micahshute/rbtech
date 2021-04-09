@@ -36,6 +36,16 @@ RSpec.describe Rbtech::DoublyLinkedList do
     end
   end
 
+  describe "better than an array at:" do 
+    it "inserting imformation in the middle" do
+      expect(false).to be(true)
+    end
+
+    it "removing information in the middle" do
+      expect(false).to be(true)
+    end
+  end
+
   describe "#filter" do 
   it "should be able to filter nodes like an array" do 
     ll = described_class.new(100){ |i| i}

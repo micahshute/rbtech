@@ -8,6 +8,8 @@ end
 require 'bundler/setup'
 Bundler.require(:default)
 
+require 'set'
+
 require_relative './rbtech/concerns/has_nodes'
 require_relative './rbtech/concerns/trackable_nodes'
 require_relative './rbtech/concerns/tree_methods'
